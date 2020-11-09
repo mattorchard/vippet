@@ -27,7 +27,7 @@ const recordStream = async (stream: MediaStream): Promise<BlobPart> =>
   new Promise((resolve, reject) => {
     // @ts-ignore
     const mediaRecorder = new MediaRecorder(stream, {
-      mimeType: recorderMimeType
+      mimeType: getRecorderMimeType()
     });
 
     const handleTrackEnded = () => {
@@ -74,4 +74,12 @@ export const getVideoDetails = async (
     video.currentTime = DAY;
   });
 
-export const recorderMimeType = "video/webm; codecs=vp9";
+export const getRecorderMimeType = () =>
+  [
+    "video/webm; codecs=vp9",
+    "video/webm; codecs=vp8",
+    "video/webm; codecs=daala",
+    "video/webm; codecs=h264",
+    "video/webm"
+    // @ts-ignore
+  ].find(type => MediaRecorder.isTypeSupported(type));

@@ -1,7 +1,7 @@
 import { waitForEvent } from "./domHelpers";
 import { createCanvas } from "./canvasHelpers";
 import { downloadBlob } from "./downloadHelpers";
-import { recorderMimeType } from "./mediaHelpers";
+import {getRecorderMimeType} from "./mediaHelpers";
 import type {Rect, Range} from "./utilityTypes";
 
 
@@ -34,7 +34,7 @@ export const exportVideo = ({
     const stream = canvas.captureStream();
     // @ts-ignore
     const recorder = new MediaRecorder(stream, {
-      mimeType: recorderMimeType,
+      mimeType: getRecorderMimeType(),
       videoBitsPerSecond : MEGA * bitRate,
     });
 
