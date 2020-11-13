@@ -46,7 +46,8 @@
 
   .tutorial {
     padding: 0;
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
     list-style: none;
     justify-content: space-between;
