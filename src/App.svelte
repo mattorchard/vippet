@@ -53,7 +53,7 @@
         {/if}
 
         <footer in:fade={{duration: 2000, delay: 1500}}>
-            <a href="https://github.com/mattorchard/vippet">
+            <a href="https://github.com/mattorchard/vippet" target="_blank" rel="noopener noreferrer">
                 Built with Svelte and TypeScript, by Matthew Orchard.
             </a>
         </footer>
