@@ -1,40 +1,34 @@
 <script lang="ts">
-  import {onMount} from "svelte";
   import {fly} from "svelte/transition";
-
-  let mounted = false;
-  onMount(() => mounted = true)
 </script>
 
 
 <section>
     <ol class="tutorial">
-        {#if mounted}
-            <li class="tutorial-step" in:fly="{{y: 100, duration: 2000, delay: 0}}">
-                <video src="/videos/record.webm" class="tutorial-video" autoplay muted loop></video>
-                <div class="step-header">
-                    <span class="step-number">1</span>
-                    <strong class="step-title">Record</strong>
-                </div>
-                <p>Record an app, or your whole screen</p>
-            </li>
-            <li class="tutorial-step" in:fly={{y: 100, duration: 2000, delay: 500}}>
-                <video src="/videos/edit.webm" class="tutorial-video" autoplay muted loop></video>
-                <div class="step-header">
-                    <span class="step-number">2</span>
-                    <strong class="step-title">Edit</strong>
-                </div>
-                <p>Crop the video, and trim the start and end</p>
-            </li>
-            <li class="tutorial-step" in:fly={{y: 100, duration: 2000, delay: 1000}}>
-                <video src="/videos/export.webm" class="tutorial-video" autoplay muted loop></video>
-                <div class="step-header">
-                    <span class="step-number">3</span>
-                    <strong class="step-title">Export</strong>
-                </div>
-                <p>Choose your settings, and save your snippet</p>
-            </li>
-        {/if}
+        <li class="tutorial-step" in:fly="{{y: 100, duration: 2000, delay: 0}}">
+            <video src="/videos/record.webm" class="tutorial-video" autoplay muted loop></video>
+            <div class="step-header">
+                <span class="step-number">1</span>
+                <strong class="step-title">Record</strong>
+            </div>
+            <p>Record an app, or your whole screen</p>
+        </li>
+        <li class="tutorial-step" in:fly={{y: 100, duration: 2000, delay: 500}}>
+            <video src="/videos/edit.webm" class="tutorial-video" autoplay muted loop></video>
+            <div class="step-header">
+                <span class="step-number">2</span>
+                <strong class="step-title">Edit</strong>
+            </div>
+            <p>Crop the video, and trim the start and end</p>
+        </li>
+        <li class="tutorial-step" in:fly={{y: 100, duration: 2000, delay: 1000}}>
+            <video src="/videos/export.webm" class="tutorial-video" autoplay muted loop></video>
+            <div class="step-header">
+                <span class="step-number">3</span>
+                <strong class="step-title">Export</strong>
+            </div>
+            <p>Choose your settings, and save your snippet</p>
+        </li>
     </ol>
 </section>
 
