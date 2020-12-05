@@ -9,3 +9,5 @@ export type Range = {
   start: number;
   end: number;
 };
+
+export type Quality = "high" | "medium" | "low";

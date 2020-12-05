@@ -20,9 +20,12 @@
     "@rollup/plugin-typescript": "^6.0.0",
     "typescript": "^3.9.3",
     "tslib": "^2.0.0",
-    "@tsconfig/svelte": "^1.0.0"
+    "@tsconfig/svelte": "^1.0.0",
+    "@types/gif.js": "^0.2.0",
+    "worker-timers": "^7.0.7"
   },
   "dependencies": {
-    "sirv-cli": "^1.0.0"
+    "sirv-cli": "^1.0.0",
+    "gif.js": "^0.2.0"
   }
 }

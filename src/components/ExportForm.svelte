@@ -1,56 +1,35 @@
 <script lang="ts">
   import {fade} from 'svelte/transition';
-  import {onDestroy} from "svelte";
 
-  import {exportVideo} from "../helpers/exportHelpers";
-  import type {Rect, Range} from "../helpers/utilityTypes";
-  import {SECOND} from "../helpers/timingHelpers";
+  import {exportGif, exportVideo} from "../helpers/exportHelpers";
+  import type {Rect, Range, Quality} from "../helpers/utilityTypes";
 
-  export let videoUrl: string;
+  export let srcVideoUrl: string;
   export let trim: Range;
   export let crop: Rect;
 
+  let format = "video"
   let frameRate = 15;
-  let bitRate = 2.5;
+  let quality: Quality = "medium";
+  let scale = 1;
   let exportPromise = null;
-
-  let exportInterval;
-  let exportTimingDetails = null;
-  let isExporting = false;
-
+  let exportProgress = 0;
 
   const handleSubmit = async () => {
-    exportPromise = exportVideo({
-      videoUrl, crop, trim, bitRate, frameRate
-    });
-    exportTimingDetails = {
-      start: Date.now(),
-      expectedDuration: (trim.end - trim.start) * SECOND,
-      elapsed: 0,
-    }
 
-    exportInterval = setInterval(() => exportTimingDetails = {
-      ...exportTimingDetails,
-      elapsed: Date.now() - exportTimingDetails.start,
-    }, 0.1 * SECOND)
+    const exportFunction = (format === "video" ? exportVideo : exportGif);
+    exportPromise = exportFunction({
+      srcVideoUrl, crop, trim, quality, frameRate, scale
+    }, progress => exportProgress = progress);
 
     try {
-      isExporting = true;
+      exportProgress = 0;
       await exportPromise;
+      exportProgress = 1;
     } finally {
-      isExporting = false;
-      if (exportInterval)
-        clearInterval(exportInterval)
+      exportPromise = null;
     }
   };
-  onDestroy(() => {
-    if (exportInterval)
-      clearInterval(exportInterval)
-  })
-
-  $: exportProgress = exportTimingDetails
-    ? `${Math.round(exportTimingDetails.elapsed / SECOND)}/${Math.round(exportTimingDetails.expectedDuration / SECOND)}s`
-    : ""
 
 </script>
 
@@ -60,10 +39,8 @@
         <div transition:fade>
             {#await exportPromise}
                 <label>
-                    Exporting: {exportProgress}
-                    <progress value={exportTimingDetails.elapsed}
-                              max={exportTimingDetails.expectedDuration}>{exportProgress}</progress>
-
+                    Exporting: {Math.round(exportProgress * 100)}%
+                    <progress value={exportProgress} max={1}></progress>
                 </label>
             {:catch error}
                 Error while exporting {error.message}
@@ -73,22 +50,41 @@
 
     <form on:submit|preventDefault={handleSubmit}>
         <fieldset>
+            <legend>Format</legend>
+
+            <div role="group" class="checkbox-button-group">
+                <input type="radio" aria-label="Video" value="video" bind:group={format}>
+                <input type="radio" aria-label="GIF" value="gif" bind:group={format}>
+            </div>
+        </fieldset>
+        <fieldset>
             <legend><abbr title="Frames per Second">FPS</abbr></legend>
             <div class="checkbox-button-group">
+                <input type=radio aria-label="10" value={10} bind:group={frameRate}>
                 <input type=radio aria-label="15" value={15} bind:group={frameRate}>
                 <input type=radio aria-label="30" value={30} bind:group={frameRate}>
             </div>
         </fieldset>
         <label>
             Quality
-            <select bind:value={bitRate}>
-                <option value={5}>High (5 Mbit/s)</option>
-                <option value={2.5}>Medium (2.5 Mbit/s)</option>
-                <option value={1}>Low (1 Mbit/s)</option>
+            <select bind:value={quality}>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+        </label>
+        <label>
+            Resize
+            <select bind:value={scale}>
+                <option value={1}>100%</option>
+                <option value={0.75}>75%</option>
+                <option value={0.5}>50%</option>
+                <option value={0.25}>25%</option>
             </select>
         </label>
 
-        <button type="submit" class="export-button" disabled={isExporting}>
+
+        <button type="submit" class="export-button" disabled={Boolean(exportPromise)}>
             Export
         </button>
     </form>
@@ -99,7 +95,7 @@
 <style>
   .export-row, form {
     display: flex;
-    gap: .5rem;
+    gap: 1rem;
   }
 
   progress {
