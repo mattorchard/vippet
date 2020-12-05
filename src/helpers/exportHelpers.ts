@@ -42,17 +42,20 @@ const setupVideo = async (srcVideoUrl: string, start: number): Promise<HTMLVideo
   if (start) await waitForEvent(video, "seeked", 1000);
 
   return resolve(video);
-})
+});
 
-export const exportGif = async ({srcVideoUrl, crop, trim, frameRate, quality}: ExportSettings, progressCallback?: ProgressCallback): Promise<Blob> => new Promise(async (resolve) => {
+const getCaptureProgress = (currentTime: number, trim: {start: number, end: number}) =>
+  (currentTime - trim.start)/(trim.end - trim.start)
+
+export const exportGif = async ({srcVideoUrl, crop, trim, frameRate, quality, scale}: ExportSettings, updateProgressCallback?: ProgressCallback): Promise<Blob> => new Promise(async (resolve) => {
   const video = await setupVideo(srcVideoUrl, trim.start);
-  const {context} = createCanvas(crop);
+  const {context, drawImage} = createCanvas(crop, scale);
 
   const gif = new GIF({
     workers: 1,
     quality: gifQualityForQuality[quality],
-    width: crop.width,
-    height: crop.height
+    width: crop.width * scale,
+    height: crop.height * scale
   });
 
   gif.on("finished", (blob, ) => {
@@ -60,19 +63,18 @@ export const exportGif = async ({srcVideoUrl, crop, trim, frameRate, quality}: E
     resolve(blob);
   });
 
-  if (progressCallback) {
+  if (updateProgressCallback) {
     gif.on("progress", renderProcess =>
-      progressCallback(renderProcess / 2 + 0.5)
+      updateProgressCallback(0.5 + renderProcess / 2)
     )
   }
 
   const interval = workerTimers.setInterval(() => {
     if (video.currentTime <= trim.end) {
-      context.drawImage(video, -crop.left, -crop.top);
+      drawImage(video);
       gif.addFrame(context, {copy: true, delay: 1000 / frameRate})
 
-      const captureProgress = (video.currentTime - trim.start) / (trim.end - trim.start);
-      progressCallback?.(captureProgress / 2);
+      updateProgressCallback?.(getCaptureProgress(video.currentTime, trim) / 2);
     }
     if (video.currentTime >= trim.end) {
       workerTimers.clearInterval(interval);
@@ -80,14 +82,17 @@ export const exportGif = async ({srcVideoUrl, crop, trim, frameRate, quality}: E
     }
   }, 1000 / frameRate);
 
-  video.onpause = () => video.play();
+  video.onpause = () => {
+    if (video.currentTime < trim.end)
+      video.play()
+  };
   await video.play();
 });
 
-export const exportVideo = ({srcVideoUrl, crop, trim, frameRate, quality}: ExportSettings, progressCallback: ProgressCallback): Promise<Blob> =>
+export const exportVideo = ({srcVideoUrl, crop, trim, frameRate, quality, scale}: ExportSettings, updateProgressCallback: ProgressCallback): Promise<Blob> =>
   new Promise(async (resolve, reject) => {
     const video = await setupVideo(srcVideoUrl, trim.start);
-    const {canvas, context} = createCanvas(crop);
+    const {canvas, drawImage} = createCanvas(crop, scale);
     // @ts-ignore
     const stream = canvas.captureStream() as MediaStream;
 
@@ -104,11 +109,9 @@ export const exportVideo = ({srcVideoUrl, crop, trim, frameRate, quality}: Expor
     };
 
     const interval = workerTimers.setInterval(() => {
-      console.log("Wow its now", new Date())
       if (video.currentTime <= trim.end) {
-        context.drawImage(video, -crop.left, -crop.top);
-        const progress = (video.currentTime - trim.start)/(trim.end - trim.start);
-        progressCallback?.(progress);
+        drawImage(video);
+        updateProgressCallback?.(getCaptureProgress(video.currentTime, trim));
       }
       if (video.currentTime >= trim.end) {
         workerTimers.clearInterval(interval);
@@ -121,6 +124,9 @@ export const exportVideo = ({srcVideoUrl, crop, trim, frameRate, quality}: Expor
       reject(new Error(`Failed to record video`));
     };
     video.addEventListener("play", () => recorder.start(), {once: true});
-    video.onpause = () => video.play();
+    video.onpause = () => {
+      if (video.currentTime < trim.end)
+        video.play()
+    };
     await video.play();
   });
