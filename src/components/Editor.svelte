@@ -58,7 +58,7 @@
     </div>
 
     <header>
-        <button class="discard-button" on:click={onDiscard}>Discard</button>
+        <button class="discard-button" on:click={onDiscard}>Discard Recording</button>
         <ExportForm srcVideoUrl={videoUrl} trim={trim} crop={crop}/>
     </header>
 
