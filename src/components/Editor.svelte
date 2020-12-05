@@ -59,7 +59,7 @@
 
     <header>
         <button class="discard-button" on:click={onDiscard}>Discard</button>
-        <ExportForm videoUrl={videoUrl} trim={trim} crop={crop}/>
+        <ExportForm srcVideoUrl={videoUrl} trim={trim} crop={crop}/>
     </header>
 
     <Timeline onTrimChange={setTrim}/>
