@@ -6,7 +6,6 @@ export const createCanvas = (crop: Rect, scale: number) => {
   canvas.height = crop.height * scale;
   const context = canvas.getContext("2d");
   if (!context) throw new Error(`Unable to create canvas context`);
-  console.log(crop)
   const drawImage = (image: CanvasImageSource) =>
     context.drawImage(
       image,
