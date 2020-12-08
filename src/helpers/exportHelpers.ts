@@ -69,7 +69,7 @@ export const exportGif = async ({srcVideoUrl, crop, trim, frameRate, quality, sc
     )
   }
 
-  let lastFrameCapturedAt = 0;
+  let lastFrameCapturedAt = Date.now() - (1000 / frameRate) - 1;
 
   const interval = workerTimers.setInterval(() => {
     if (Date.now() - lastFrameCapturedAt < 1000 / frameRate)
@@ -78,7 +78,6 @@ export const exportGif = async ({srcVideoUrl, crop, trim, frameRate, quality, sc
     if (video.currentTime <= trim.end) {
       drawImage(video);
       const delay = Date.now() - lastFrameCapturedAt;
-
       gif.addFrame(context, {copy: true, delay})
       updateProgressCallback?.(getCaptureProgress(video.currentTime, trim) / 2);
     }
@@ -87,7 +86,7 @@ export const exportGif = async ({srcVideoUrl, crop, trim, frameRate, quality, sc
       gif.render()
     }
     lastFrameCapturedAt = Date.now();
-  }, 0);
+  }, 1);
 
   video.onpause = () => {
     if (video.currentTime < trim.end)
@@ -130,7 +129,7 @@ export const exportVideo = ({srcVideoUrl, crop, trim, frameRate, quality, scale}
       }
 
       lastFrameCapturedAt = Date.now();
-    }, 0);
+    }, 1);
 
     recorder.onerror = () => {
       workerTimers.clearInterval(interval);
