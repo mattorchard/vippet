@@ -27,6 +27,7 @@ type ExportSettings = {
   frameRate: number;
   quality: Quality
   scale: number,
+  speed: number
 }
 
 type ProgressCallback = (progress: number) => void
@@ -47,7 +48,7 @@ const setupVideo = async (srcVideoUrl: string, start: number): Promise<HTMLVideo
 const getCaptureProgress = (currentTime: number, trim: {start: number, end: number}) =>
   (currentTime - trim.start)/(trim.end - trim.start)
 
-export const exportGif = async ({srcVideoUrl, crop, trim, frameRate, quality, scale}: ExportSettings, updateProgressCallback?: ProgressCallback): Promise<Blob> => new Promise(async (resolve) => {
+export const exportGif = async ({srcVideoUrl, crop, trim, frameRate, quality, scale, speed}: ExportSettings, updateProgressCallback?: ProgressCallback): Promise<Blob> => new Promise(async (resolve) => {
   const video = await setupVideo(srcVideoUrl, trim.start);
   const {context, drawImage} = createCanvas(crop, scale);
 
@@ -92,10 +93,11 @@ export const exportGif = async ({srcVideoUrl, crop, trim, frameRate, quality, sc
     if (video.currentTime < trim.end)
       video.play()
   };
+  video.playbackRate = speed
   await video.play();
 });
 
-export const exportVideo = ({srcVideoUrl, crop, trim, frameRate, quality, scale}: ExportSettings, updateProgressCallback: ProgressCallback): Promise<Blob> =>
+export const exportVideo = ({srcVideoUrl, crop, trim, frameRate, quality, scale, speed}: ExportSettings, updateProgressCallback: ProgressCallback): Promise<Blob> =>
   new Promise(async (resolve, reject) => {
     const video = await setupVideo(srcVideoUrl, trim.start);
     const {canvas, drawImage} = createCanvas(crop, scale);
@@ -140,5 +142,6 @@ export const exportVideo = ({srcVideoUrl, crop, trim, frameRate, quality, scale}
       if (video.currentTime < trim.end)
         video.play()
     };
+    video.playbackRate = speed
     await video.play();
   });

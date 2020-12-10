@@ -12,6 +12,7 @@
   let frameRate = 15;
   let quality: Quality = "medium";
   let scale = 1;
+  let speed = 1;
   let exportPromise = null;
   let exportProgress = 0;
 
@@ -19,7 +20,7 @@
 
     const exportFunction = (format === "video" ? exportVideo : exportGif);
     exportPromise = exportFunction({
-      srcVideoUrl, crop, trim, quality, frameRate, scale
+      srcVideoUrl, crop, trim, quality, frameRate, scale, speed
     }, progress => exportProgress = progress);
 
     try {
@@ -57,6 +58,10 @@
                 <input type="radio" aria-label="GIF" value="gif" bind:group={format}>
             </div>
         </fieldset>
+        <label class="speed-label">
+            Speed
+            <input type="number" bind:value={speed} step={.25} min={.25} >
+        </label>
         <fieldset>
             <legend><abbr title="Frames per Second">FPS</abbr></legend>
             <div class="checkbox-button-group">
@@ -100,6 +105,11 @@
 
   progress {
     display: block;
+  }
+
+  .speed-label {
+    display: flex;
+    flex-direction: column;
   }
 
   select {

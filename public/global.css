@@ -125,7 +125,7 @@ legend, label {
   line-height: 1.25rem;
 }
 
-select {
+select, input[type=number] {
   background-color: var(--color-bg-light);
   color: var(--color-text-light);
   border: .125rem solid var(--color-primary);
@@ -134,9 +134,19 @@ select {
   font-size: 1rem;
   padding: .125rem;
 }
-select:focus {
+select:focus, input[type=number]:focus {
   background-color: var(--color-primary)
 }
+input[type=number] {
+  width: 4ch;
+  -moz-appearance: textfield;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 select:focus > option {
   background-color: var(--color-bg-light);
   border: none;
